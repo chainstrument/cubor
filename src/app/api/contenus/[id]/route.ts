@@ -37,7 +37,11 @@ export async function GET(_request: Request, context: RouteContext) {
   const id = Number(params.id)
   const contenu = await prisma.contenu.findUnique({
     where: { id },
-    include: { niche: true, plateforme: true },
+    include: {
+      niche: true,
+      plateforme: true,
+      contenuOffres: { include: { offre: true } },
+    },
   })
 
   if (!contenu) {

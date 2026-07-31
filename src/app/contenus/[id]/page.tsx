@@ -56,32 +56,40 @@ export default async function ContenuPage({ params }: { params: { id: string } }
             </div>
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
-              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Lien asset</p>
-              <p className="mt-2 text-lg font-semibold text-white">{contenu.lienAsset ?? '—'}</p>
-            </div>
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
-              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Platform post ID</p>
-              <p className="mt-2 text-lg font-semibold text-white">{contenu.platformPostId ?? '—'}</p>
-            </div>
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
-              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Publication</p>
-              <p className="mt-2 text-lg font-semibold text-white">{contenu.datePublication ? contenu.datePublication.toISOString().slice(0, 10) : '—'}</p>
-            </div>
-          </div>
-          {contenu.contenuOffres.length > 0 ? (
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
-              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Offres associées</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {contenu.contenuOffres.map((relation) => (
-                  <span key={relation.offre.id} className="rounded-full bg-emerald-700 px-3 py-1 text-sm text-white">
-                    {relation.offre.nomProgramme}
-                  </span>
-                ))}
+          <div className="mt-8 rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+            <h2 className="text-2xl font-semibold text-white">Informations éditoriales</h2>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+                <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Lien asset</p>
+                <p className="mt-2 text-lg font-semibold text-white">{contenu.lienAsset ?? '—'}</p>
+              </div>
+              <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+                <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Platform post ID</p>
+                <p className="mt-2 text-lg font-semibold text-white">{contenu.platformPostId ?? '—'}</p>
+              </div>
+              <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+                <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Publication</p>
+                <p className="mt-2 text-lg font-semibold text-white">{contenu.datePublication ? contenu.datePublication.toISOString().slice(0, 10) : '—'}</p>
               </div>
             </div>
-          ) : null}
+
+            <div className="mt-6">
+              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Associations</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">Niche : {contenu.niche.nom}</span>
+                <span className="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">Plateforme : {contenu.plateforme.nom}</span>
+                {contenu.contenuOffres.length > 0 ? (
+                  contenu.contenuOffres.map((relation) => (
+                    <span key={relation.offre.id} className="rounded-full bg-emerald-700 px-3 py-1 text-sm text-white">
+                      Offre : {relation.offre.nomProgramme}
+                    </span>
+                  ))
+                ) : (
+                  <span className="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">Aucune offre associée</span>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div className="mt-8 flex gap-3">
             <Link href="/contenus" className="rounded-full border border-slate-700 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-800">
