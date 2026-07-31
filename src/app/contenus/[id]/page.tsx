@@ -55,6 +55,21 @@ export default async function ContenuPage({ params }: { params: { id: string } }
               <p className="mt-2 text-lg font-semibold text-white">{contenu.updatedAt.toISOString().slice(0, 10)}</p>
             </div>
           </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Lien asset</p>
+              <p className="mt-2 text-lg font-semibold text-white">{contenu.lienAsset ?? '—'}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Platform post ID</p>
+              <p className="mt-2 text-lg font-semibold text-white">{contenu.platformPostId ?? '—'}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Publication</p>
+              <p className="mt-2 text-lg font-semibold text-white">{contenu.datePublication ? contenu.datePublication.toISOString().slice(0, 10) : '—'}</p>
+            </div>
+          </div>
           {contenu.contenuOffres.length > 0 ? (
             <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
               <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Offres associées</p>

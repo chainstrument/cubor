@@ -16,7 +16,12 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const contenu = await prisma.contenu.update({
     where: { id },
-    data: { statutPipeline: body.statutPipeline },
+    data: {
+      statutPipeline: body.statutPipeline,
+      lienAsset: body.lienAsset,
+      platformPostId: body.platformPostId,
+      datePublication: body.datePublication ? new Date(body.datePublication) : undefined,
+    },
     include: {
       niche: true,
       plateforme: true,

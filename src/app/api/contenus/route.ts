@@ -21,6 +21,7 @@ export async function POST(request: Request) {
       statutPipeline: body.statutPipeline || 'Idée',
       nicheId: body.nicheId,
       plateformeId: body.plateformeId,
+      platformPostId: body.platformPostId,
       contenuOffres: body.offreIds?.length
         ? {
             create: body.offreIds.map((offreId: number) => ({ offre: { connect: { id: offreId } } })),
