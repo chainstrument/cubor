@@ -20,6 +20,12 @@ export default function TopNav() {
           <Link href="/offres" className="hover:text-indigo-300">
             Offres
           </Link>
+          <Link href="/suivis" className="hover:text-indigo-300">
+            Suivis
+          </Link>
+          <Link href="/taches" className="hover:text-indigo-300">
+            Tâches
+          </Link>
         </div>
         <div className="flex items-center gap-4">
           <Link href="/niches/new" className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
@@ -27,6 +33,9 @@ export default function TopNav() {
           </Link>
           <Link href="/offres/new" className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
             Nouvelle offre
+          </Link>
+          <Link href="/taches/new" className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
+            Nouvelle tâche
           </Link>
         </div>
       </div>
