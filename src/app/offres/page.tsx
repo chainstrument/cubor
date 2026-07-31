@@ -4,7 +4,10 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 
 async function getOffres() {
-  return prisma.offreAffiliation.findMany({ orderBy: { updatedAt: 'desc' } })
+  return prisma.offreAffiliation.findMany({
+    orderBy: { updatedAt: 'desc' },
+    include: { niches: { include: { niche: true } } },
+  })
 }
 
 export default async function OffresPage() {
@@ -30,6 +33,13 @@ export default async function OffresPage() {
                 <div>
                   <h2 className="text-xl font-semibold text-white">{offre.nomProgramme}</h2>
                   <p className="mt-2 text-slate-400">{offre.lienAffilie}</p>
+                  {offre.niches && offre.niches.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {offre.niches.slice(0, 3).map((rel) => (
+                        <span key={rel.niche.id} className="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">{rel.niche.nom}</span>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
                 <span className="rounded-full bg-slate-800 px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-300">
                   {offre.statut}

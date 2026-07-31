@@ -9,6 +9,10 @@ export async function GET(_request: Request, context: RouteContext) {
   const params = await context.params
   const offre = await prisma.offreAffiliation.findUnique({
     where: { id: Number(params.id) },
+    include: {
+      niches: { include: { niche: true } },
+      contenuOffres: { include: { contenu: true } },
+    },
   })
 
   if (!offre) {

@@ -4,8 +4,20 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   const offres = await prisma.offreAffiliation.findMany({
     orderBy: { updatedAt: 'desc' },
+    include: {
+      niches: { include: { niche: true } },
+      contenuOffres: { include: { contenu: true } },
+    },
   })
-  return NextResponse.json(offres)
+
+  // expose minimal derived fields to the client
+  const payload = offres.map((o) => ({
+    ...o,
+    nicheCount: o.niches?.length ?? 0,
+    contenuCount: o.contenuOffres?.length ?? 0,
+  }))
+
+  return NextResponse.json(payload)
 }
 
 export async function POST(request: Request) {

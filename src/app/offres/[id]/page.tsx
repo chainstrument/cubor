@@ -4,7 +4,13 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 async function getOffre(id: string) {
-  return prisma.offreAffiliation.findUnique({ where: { id: Number(id) } })
+  return prisma.offreAffiliation.findUnique({
+    where: { id: Number(id) },
+    include: {
+      niches: { include: { niche: true } },
+      contenuOffres: { include: { contenu: true } },
+    },
+  })
 }
 
 export default async function OffrePage({ params }: { params: { id: string } }) {
@@ -47,6 +53,35 @@ export default async function OffrePage({ params }: { params: { id: string } }) 
               <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Durée cookie</p>
               <p className="mt-2 text-lg font-semibold text-white">{offre.dureeCookie ? `${offre.dureeCookie} jours` : 'Non précisée'}</p>
             </div>
+          </div>
+
+          <div className="mt-8 rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+            <h2 className="text-2xl font-semibold text-white">Niches compatibles</h2>
+            {offre.niches && offre.niches.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {offre.niches.map((rel) => (
+                  <Link key={rel.niche.id} href={`/niches/${rel.niche.id}`} className="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">{rel.niche.nom}</Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-slate-400">Aucune niche associée.</p>
+            )}
+          </div>
+
+          <div className="mt-8 rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+            <h2 className="text-2xl font-semibold text-white">Contenus liés</h2>
+            {offre.contenuOffres && offre.contenuOffres.length > 0 ? (
+              <div className="mt-4 grid gap-3">
+                {offre.contenuOffres.map((rel) => (
+                  <Link key={rel.contenu.id} href={`/contenus/${rel.contenu.id}`} className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 transition hover:border-indigo-500">
+                    <p className="font-semibold text-white">{rel.contenu.titre}</p>
+                    <p className="mt-1 text-sm text-slate-400">Statut pipeline : {rel.contenu.statutPipeline}</p>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-slate-400">Aucun contenu associé à cette offre.</p>
+            )}
           </div>
 
           <div className="mt-8 flex gap-3">
