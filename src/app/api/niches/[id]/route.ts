@@ -9,6 +9,16 @@ export async function GET(_request: Request, context: RouteContext) {
   const params = await context.params
   const niche = await prisma.niche.findUnique({
     where: { id: Number(params.id) },
+    include: {
+      contenus: {
+        orderBy: { updatedAt: 'desc' },
+      },
+      offres: {
+        include: {
+          offre: true,
+        },
+      },
+    },
   })
   if (!niche) {
     return NextResponse.json({ error: 'Niche non trouvée' }, { status: 404 })
