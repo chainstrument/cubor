@@ -1,22 +1,32 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import EvaluationForm from '@/components/evaluations/EvaluationForm'
 
 export const dynamic = 'force-dynamic'
 
 async function getNiche(id: string) {
-  return prisma.niche.findUnique({
+  const niche = await prisma.niche.findUnique({
     where: { id: Number(id) },
     include: {
-      contenus: {
-        orderBy: { updatedAt: 'desc' },
-      },
-      offres: {
-        include: {
-          offre: true,
-        },
-      },
+      contenus: { orderBy: { updatedAt: 'desc' } },
+      offres: { include: { offre: true } },
+      evaluations: { include: { critere: true }, orderBy: { dateEvaluation: 'desc' } },
     },
   })
+
+  if (!niche) return null
+
+  const evals = niche.evaluations ?? []
+  let composite = null
+  if (evals.length > 0) {
+    const withPoids = evals.filter((e) => e.critere?.poids)
+    const weighted = withPoids.reduce((acc, e) => acc + (e.score * (e.critere?.poids ?? 0)), 0)
+    const totalPoids = withPoids.reduce((acc, e) => acc + (e.critere?.poids ?? 0), 0)
+    if (totalPoids > 0) composite = weighted / totalPoids
+    else composite = evals.reduce((acc, e) => acc + e.score, 0) / evals.length
+  }
+
+  return { ...niche, compositeScore: composite }
 }
 
 export default async function NichePage({ params }: { params: { id: string } }) {
@@ -86,9 +96,7 @@ export default async function NichePage({ params }: { params: { id: string } }) 
             </div>
             <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
               <h2 className="text-2xl font-semibold text-white">Scoring de validation</h2>
-              <p className="mt-4 text-slate-400">
-                Emplacement réservé pour le scoring et l’évaluation de la niche. Ce bloc permettra d’afficher des notes, critères et validation produit.
-              </p>
+              <p className="mt-2 text-lg font-semibold text-white">{niche.compositeScore ? `${niche.compositeScore.toFixed(2)} / 10` : '—'}</p>
             </div>
           </div>
 
@@ -110,6 +118,37 @@ export default async function NichePage({ params }: { params: { id: string } }) 
             ) : (
               <p className="mt-4 text-slate-400">Aucun contenu associé pour cette niche.</p>
             )}
+          </div>
+
+          <div className="mt-8 rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+            <h2 className="text-2xl font-semibold text-white">Évaluations & Historique</h2>
+            <div className="mt-4">
+              <p className="text-sm text-slate-400">Ajouter une évaluation</p>
+              <div className="mt-3">
+                <EvaluationForm entityType="niche" entityId={niche.id} />
+              </div>
+
+              <div className="mt-6">
+                <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Historique</p>
+                {niche.evaluations && niche.evaluations.length > 0 ? (
+                  <ul className="mt-3 space-y-3">
+                    {niche.evaluations.map((ev) => (
+                      <li key={ev.id} className="rounded-lg border border-slate-800 bg-slate-900/80 p-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-semibold text-white">{ev.critere?.nom ?? 'Critère'}</p>
+                            <p className="text-sm text-slate-400">{ev.note ?? ''}</p>
+                          </div>
+                          <div className="text-slate-300">{ev.score} • {new Date(ev.dateEvaluation).toISOString().slice(0,10)}</div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-slate-400">Aucune évaluation.</p>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="mt-8 flex gap-3">
