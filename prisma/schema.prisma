@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EntiteType {
+  niche
+  offre
+  contenu
+}
+
+model Niche {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  nom         String
+  statut      String
+  description String?
+  contenus    Contenu[]
+  offres      NicheOffre[]
+  evaluations Evaluation[] @relation("NicheEvaluations")
+}
+
+model Plateforme {
+  id              Int       @id @default(autoincrement())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  nom             String
+  formatDominant  String?
+  frequenceIdeale String?
+  contenus        Contenu[]
+}
+
+model Contenu {
+  id              Int            @id @default(autoincrement())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  titre           String
+  statutPipeline  String
+  datePublication DateTime?
+  lienAsset       String?
+  platformPostId  String?
+  nicheId         Int
+  plateformeId    Int
+  niche           Niche          @relation(fields: [nicheId], references: [id])
+  plateforme      Plateforme     @relation(fields: [plateformeId], references: [id])
+  contenuOffres   ContenuOffre[]
+  taches          Tache[]
+  suivis          SuiviRevenu[]
+  evaluations     Evaluation[]   @relation("ContenuEvaluations")
+}
+
+model OffreAffiliation {
+  id             Int            @id @default(autoincrement())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  nomProgramme   String
+  tauxCommission Float?
+  lienAffilie    String
+  dureeCookie    Int?
+  statut         String
+  contenuOffres  ContenuOffre[]
+  niches         NicheOffre[]
+  suivis         SuiviRevenu[]
+  evaluations    Evaluation[]   @relation("OffreEvaluations")
+}
+
+model SuiviRevenu {
+  id          Int              @id @default(autoincrement())
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  contenuId   Int
+  offreId     Int
+  date        DateTime
+  clics       Int              @default(0)
+  conversions Int              @default(0)
+  revenu      Float            @default(0)
+  contenu     Contenu          @relation(fields: [contenuId], references: [id])
+  offre       OffreAffiliation @relation(fields: [offreId], references: [id])
+}
+
+model Tache {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  contenuId Int
+  titre     String
+  type      String
+  statut    String
+  echeance  DateTime?
+  contenu   Contenu   @relation(fields: [contenuId], references: [id])
+}
+
+model Critere {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  nom         String
+  categorie   String?
+  typeCible   String?
+  poids       Float?
+  evaluations Evaluation[]
+}
+
+model Evaluation {
+  id             Int               @id @default(autoincrement())
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  idEntite       Int
+  typeEntite     EntiteType
+  critereId      Int
+  nicheId        Int?
+  contenuId      Int?
+  offreId        Int?
+  score          Float
+  note           String?
+  source         String?
+  dateEvaluation DateTime
+  critere        Critere           @relation(fields: [critereId], references: [id])
+  niche          Niche?            @relation("NicheEvaluations", fields: [nicheId], references: [id])
+  contenu        Contenu?          @relation("ContenuEvaluations", fields: [contenuId], references: [id])
+  offre          OffreAffiliation? @relation("OffreEvaluations", fields: [offreId], references: [id])
+}
+
+model NicheOffre {
+  nicheId Int
+  offreId Int
+  niche   Niche            @relation(fields: [nicheId], references: [id])
+  offre   OffreAffiliation @relation(fields: [offreId], references: [id])
+
+  @@id([nicheId, offreId])
+}
+
+model ContenuOffre {
+  contenuId Int
+  offreId   Int
+  contenu   Contenu          @relation(fields: [contenuId], references: [id])
+  offre     OffreAffiliation @relation(fields: [offreId], references: [id])
+
+  @@id([contenuId, offreId])
+}
