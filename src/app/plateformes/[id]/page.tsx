@@ -4,9 +4,14 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 async function getPlateforme(id: string) {
-  return prisma.plateforme.findUnique({
-    where: { id: Number(id) },
-  })
+  const plateforme = await prisma.plateforme.findUnique({ where: { id: Number(id) } })
+  if (!plateforme) return null
+
+  const contenuCount = await prisma.contenu.count({ where: { plateformeId: plateforme.id } })
+  const publishedCount = await prisma.contenu.count({ where: { plateformeId: plateforme.id, datePublication: { not: null } } })
+  const revenue = await prisma.suiviRevenu.aggregate({ _sum: { revenu: true }, where: { contenu: { plateformeId: plateforme.id } } })
+
+  return { ...plateforme, contenuCount, publishedCount, revenue: revenue._sum.revenu ?? 0 }
 }
 
 export default async function PlateformePage({ params }: { params: { id: string } }) {
@@ -38,6 +43,21 @@ export default async function PlateformePage({ params }: { params: { id: string 
             <span className="rounded-full bg-slate-800 px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-300">
               {plateforme.frequenceIdeale || 'Fréquence inconnue'}
             </span>
+          </div>
+
+          <div className="mt-8 grid gap-4 lg:grid-cols-3">
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Contenus liés</p>
+              <p className="mt-2 text-lg font-semibold text-white">{plateforme.contenuCount}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Publiés</p>
+              <p className="mt-2 text-lg font-semibold text-white">{plateforme.publishedCount}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+              <p className="text-sm uppercase tracking-[0.15em] text-slate-500">Revenu total</p>
+              <p className="mt-2 text-lg font-semibold text-white">€{Math.round(plateforme.revenue)}</p>
+            </div>
           </div>
 
           <div className="mt-8 flex gap-3">

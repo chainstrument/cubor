@@ -4,10 +4,28 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 async function getPlateformes() {
-  return prisma.plateforme.findMany({
+  const plateformes = await prisma.plateforme.findMany({
     orderBy: { updatedAt: 'desc' },
     take: 50,
+    include: { _count: { select: { contenus: true } } },
   })
+
+  return Promise.all(
+    plateformes.map(async (p) => {
+      const publishedCount = await prisma.contenu.count({ where: { plateformeId: p.id, datePublication: { not: null } } })
+      const revenue = await prisma.suiviRevenu.aggregate({ _sum: { revenu: true }, where: { contenu: { plateformeId: p.id } } })
+      return {
+        id: p.id,
+        nom: p.nom,
+        formatDominant: p.formatDominant,
+        frequenceIdeale: p.frequenceIdeale,
+        updatedAt: p.updatedAt,
+        contenuCount: p._count?.contenus ?? 0,
+        publishedCount,
+        revenue: revenue._sum.revenu ?? 0,
+      }
+    })
+  )
 }
 
 export default async function PlateformesPage() {
@@ -33,6 +51,7 @@ export default async function PlateformesPage() {
                 <div>
                   <h2 className="text-xl font-semibold text-white">{plateforme.nom}</h2>
                   <p className="mt-2 text-slate-400">{plateforme.formatDominant || 'Format non défini'}</p>
+                  <p className="mt-3 text-sm text-slate-400">Contenus : {plateforme.contenuCount ?? '—'} · Publiés : {plateforme.publishedCount ?? '—'}</p>
                 </div>
                 <span className="rounded-full bg-slate-800 px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-300">
                   {plateforme.frequenceIdeale || 'Fréquence inconnue'}
