@@ -26,13 +26,33 @@ model Niche {
 }
 
 model Plateforme {
-  id              Int       @id @default(autoincrement())
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  nom             String
-  formatDominant  String?
-  frequenceIdeale String?
-  contenus        Contenu[]
+  id                Int                 @id @default(autoincrement())
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  nom               String
+  provider          String?
+  formatDominant    String?
+  frequenceIdeale   String?
+  oauthAccessToken  String?
+  oauthRefreshToken String?
+  oauthTokenExpiresAt DateTime?
+  oauthStatus       String?
+  lastSyncAt        DateTime?
+  syncStatus        String?
+  contenus          Contenu[]
+  syncLogs          PlateformeSyncLog[]
+}
+
+model PlateformeSyncLog {
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  plateformeId Int
+  action       String
+  status       String
+  message      String?
+  metadata     Json?
+  plateforme   Plateforme  @relation(fields: [plateformeId], references: [id])
 }
 
 model Contenu {

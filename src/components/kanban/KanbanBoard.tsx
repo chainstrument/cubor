@@ -20,6 +20,7 @@ export type ContenuKanban = {
   id: number
   titre: string
   statutPipeline: string
+  updatedAt: string
   niche: { nom: string }
   plateforme: { nom: string }
 }
